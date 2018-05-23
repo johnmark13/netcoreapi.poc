@@ -26,7 +26,7 @@ namespace TodoApi.Controllers
             if (Directory.Exists("/app/secrets"))
             {
                 hack.Add("Exists", "true");
-                var fp = new PhysicalFileProvider("/run/secrets");
+                var fp = new PhysicalFileProvider("/app/secrets");
                 foreach (var file in fp.GetDirectoryContents("/"))
                 {
                     hack.Add(file.Name, file.IsDirectory.ToString());
