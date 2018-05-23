@@ -21,7 +21,7 @@ namespace TodoApi
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables()
-                .AddDockerSecrets(source => { source.Optional = true; })
+                //.AddDockerSecrets(source => { source.Optional = true; })
                 .Build();
         }
 
