@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.DockerSecrets;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace TodoApi
 {
@@ -17,15 +18,21 @@ namespace TodoApi
         {
             HostingEnvironment = env;
 
-            Configuration = new ConfigurationBuilder()                
+            var builder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables()
-                .AddDockerSecrets(source => {
-                    source.Optional = true;
-                    source.IgnoreCondition = name => name.Equals("rhel7.repo");
-                })
-                .Build();
+                .AddEnvironmentVariables();
+                
+            if (env.IsProduction())
+            {
+                var sf = Environment.GetEnvironmentVariable("SECRET_CONFIG_FILE");
+                if (!string.IsNullOrEmpty(sf))
+                {
+                    builder.AddJsonFile(sf);
+                }
+            }
+
+            Configuration = builder.Build();
         }
 
         public void ConfigureServices(IServiceCollection services)
