@@ -23,7 +23,7 @@ namespace TodoApi.Controllers
         {
             var hack = new Dictionary<string, string>();
 
-            if (Directory.Exists("/run/secrets"))
+            if (Directory.Exists("/app/secrets"))
             {
                 hack.Add("Exists", "true");
                 var fp = new PhysicalFileProvider("/run/secrets");
