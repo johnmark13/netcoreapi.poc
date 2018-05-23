@@ -28,7 +28,7 @@ namespace TodoApi
                 var sf = Environment.GetEnvironmentVariable("SECRET_CONFIG_FILE");
                 if (!string.IsNullOrEmpty(sf))
                 {
-                    builder.AddJsonFile(sf);
+                    builder.AddJsonFile(sf, optional: true);
                 }
             }
 
