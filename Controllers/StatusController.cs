@@ -37,6 +37,8 @@ namespace TodoApi.Controllers
                 hack.Add("Exists", "false");                
             }
 
+            hack.Add("M2K", _settings.Value.M2kSecret);
+
             return Ok(hack);
             //return new Random().Next(0, 1000) > 995 ? StatusCode(500, "Oh my gosh, it's full of stars") : Ok(_settings.Value.M2kSecret);
         }
