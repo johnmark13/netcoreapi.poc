@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace TodoApi.Controllers
 {
@@ -18,7 +21,24 @@ namespace TodoApi.Controllers
         [HttpGet]
         public ObjectResult GetStatus()
         {
-            return new Random().Next(0, 1000) > 995 ? StatusCode(500, "Oh my gosh, it's full of stars") : Ok(_settings.Value.M2kSecret);
+            var hack = new Dictionary<string, string>();
+
+            if (Directory.Exists("/run/secrets"))
+            {
+                hack.Add("Exists", "true");
+                var fp = new PhysicalFileProvider("/run/secrets");
+                foreach (var file in fp.GetDirectoryContents("/"))
+                {
+                    hack.Add(file.Name, file.IsDirectory.ToString());
+                }
+            }
+            else
+            {
+                hack.Add("Exists", "false");                
+            }
+
+            return Ok(hack);
+            //return new Random().Next(0, 1000) > 995 ? StatusCode(500, "Oh my gosh, it's full of stars") : Ok(_settings.Value.M2kSecret);
         }
     }
 }
