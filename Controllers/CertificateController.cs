@@ -5,6 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace TodoApi.Controllers
 {
@@ -12,6 +13,13 @@ namespace TodoApi.Controllers
     [Route("api/Certificate")]
     public class CertificateController : Controller
     {
+        private readonly IOptions<StatusSettings> _settings;
+
+        public CertificateController(IOptions<StatusSettings> settings)
+        {
+            _settings = settings;
+        }
+
         [HttpGet]
         public JsonResult GetCertList()
         {
@@ -29,7 +37,20 @@ namespace TodoApi.Controllers
             certs.Add(GetStore(StoreName.CertificateAuthority, StoreLocation.CurrentUser, "CA CU"));
             certs.Add(GetStore(StoreName.TrustedPeople, StoreLocation.LocalMachine, "TP LM"));
             certs.Add(GetStore(StoreName.TrustedPeople, StoreLocation.CurrentUser, "TP CU"));
+            certs.Add(GetStore(StoreName.TrustedPublisher, StoreLocation.LocalMachine, "TPub LM"));
+            certs.Add(GetStore(StoreName.TrustedPublisher, StoreLocation.CurrentUser, "TPub CU"));
 
+            try
+            {
+                X509Certificate2 cert = new X509Certificate2("/opt/app-root/certs/DP3.pfx", _settings.Value.CertPassword);
+
+                var lc = new SimpleCert(cert.FriendlyName, cert.Subject);
+                certs.Add(new SimpleStore(new List<SimpleCert>() { lc }, "Local"));
+            }
+            catch (Exception e)
+            {
+                certs.Add(new SimpleStore(new List<SimpleCert>(), "Local: " + e.Message) { failure = true });
+            }
             return new JsonResult(certs);
         }
 
