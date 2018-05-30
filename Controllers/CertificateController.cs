@@ -35,9 +35,18 @@ namespace TodoApi.Controllers
 
         private SimpleStore GetStore(StoreName name, StoreLocation location, string sn)
         {
-            using (var store = new X509Store(name, location))
+            try
             {
-                var ss = new SimpleStore(GetCertsForStore(store), sn);
+                using (var store = new X509Store(name, location))
+                {
+                    var ss = new SimpleStore(GetCertsForStore(store), sn);
+                    return ss;
+                }
+            }
+            catch (System.Security.Cryptography.CryptographicException ce)
+            {
+                var ss = new SimpleStore(new List<SimpleCert>(), sn);
+                ss.failure = true;
                 return ss;
             }
         }
@@ -60,6 +69,8 @@ namespace TodoApi.Controllers
     {
         public IEnumerable<SimpleCert> _certs { get; }
         public string _name { get; }
+
+        public bool failure { get; set; }
 
         public SimpleStore(IEnumerable<SimpleCert> certs, string name)
         {
